@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 
-import { PixelButton, PixelCard } from "@/components/ui";
+import { PixelButton, PixelCard, useToast } from "@/components/ui";
 import { useTrialOrdering, useTrialSummary, useTrials } from "@/features/trials/hooks/useTrials";
 import type { TrialMutationInput } from "@/features/trials/types";
 import { cn } from "@/lib/utils";
@@ -37,8 +37,10 @@ export const AdminPanel = () => {
   const summary = useTrialSummary(trials);
   const orderedTrials = useTrialOrdering(trials);
   const mutations = useTrialMutations();
+  const toast = useToast();
 
   const [formState, setFormState] = useState<TrialMutationInput>(defaultFormState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
     field: keyof TrialMutationInput,
@@ -52,16 +54,36 @@ export const AdminPanel = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const payload: TrialMutationInput = {
-      ...formState,
-      expiresAt: new Date(formState.expiresAt).toISOString(),
-      startedAt: new Date(formState.startedAt).toISOString(),
-      cost: Number(formState.cost) || 0,
-      notifyDaysBefore: Number(formState.notifyDaysBefore) || 3,
-    };
+    setIsSubmitting(true);
 
-    await mutations.createTrial.mutateAsync(payload);
-    setFormState(defaultFormState);
+    try {
+      const payload: TrialMutationInput = {
+        ...formState,
+        expiresAt: new Date(formState.expiresAt).toISOString(),
+        startedAt: new Date(formState.startedAt).toISOString(),
+        cost: Number(formState.cost) || 0,
+        notifyDaysBefore: Number(formState.notifyDaysBefore) || 3,
+      };
+
+      await mutations.createTrial.mutateAsync(payload);
+      setFormState(defaultFormState);
+      toast.success(`Trial for ${payload.serviceName} created successfully!`);
+    } catch (error: any) {
+      console.error("Error creating trial:", error);
+      toast.error(error?.message || "Failed to create trial. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (trialId: string, serviceName: string) => {
+    try {
+      await mutations.deleteTrial.mutateAsync(trialId);
+      toast.success(`Trial for ${serviceName} deleted successfully`);
+    } catch (error: any) {
+      console.error("Error deleting trial:", error);
+      toast.error(error?.message || "Failed to delete trial. Please try again.");
+    }
   };
 
   const tableRows = useMemo(
@@ -85,16 +107,16 @@ export const AdminPanel = () => {
           </td>
           <td className="px-4 py-3 text-right">
             <button
-              className="font-mono text-[0.55rem] uppercase tracking-[0.5em] text-accent-danger transition-colors hover:text-accent-danger/80"
-              onClick={() => mutations.deleteTrial.mutate(trial.id)}
+              className="font-mono text-[0.55rem] uppercase tracking-[0.5em] text-accent-danger transition-colors hover:text-accent-danger/80 disabled:opacity-50"
+              onClick={() => handleDelete(trial.id, trial.serviceName)}
               disabled={mutations.deleteTrial.isPending}
             >
-              Delete
+              {mutations.deleteTrial.isPending ? "Deleting..." : "Delete"}
             </button>
           </td>
         </tr>
       )),
-    [orderedTrials, mutations.deleteTrial],
+    [orderedTrials, mutations.deleteTrial.isPending],
   );
 
   return (
@@ -250,11 +272,11 @@ export const AdminPanel = () => {
             type="submit"
             variant="primary"
             size="lg"
-            disabled={mutations.createTrial.isPending}
-            isLoading={mutations.createTrial.isPending}
+            disabled={isSubmitting || mutations.createTrial.isPending}
+            isLoading={isSubmitting || mutations.createTrial.isPending}
             className="w-full"
           >
-            Add Trial
+            {isSubmitting ? "Creating Trial..." : "Add Trial"}
           </PixelButton>
         </form>
       </PixelCard>

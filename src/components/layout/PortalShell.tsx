@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { PixelButton } from "@/components/ui";
+import { PixelButton, useToast } from "@/components/ui";
 import { PixelCubeLogo } from "@/components/scene/PixelCubeLogo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -26,10 +26,17 @@ export const PortalShell = ({ children }: PortalShellProps) => {
   const pathname = usePathname();
   const { signOut, user } = useAuth();
   const router = useRouter();
+  const toast = useToast();
 
   const handleLogout = async () => {
-    await signOut();
-    router.push("/login");
+    try {
+      await signOut();
+      toast.success("Signed out successfully. See you soon!");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to sign out. Please try again.");
+    }
   };
 
   return (

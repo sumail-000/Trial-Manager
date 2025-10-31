@@ -41,29 +41,40 @@ export async function GET(
     const supabase = await getSupabaseServerClient();
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized. Please sign in to continue." },
         { status: 401 }
       );
     }
 
     const { id } = await context.params;
+    
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(
+        { error: "Invalid trial ID" },
+        { status: 400 }
+      );
+    }
+
     const trial = await getTrialById(supabase, id, user.id);
     
     if (!trial) {
       return NextResponse.json(
-        { error: "Trial not found" },
+        { error: "Trial not found or you don't have permission to access it" },
         { status: 404 },
       );
     }
 
-    return NextResponse.json({ data: trial });
+    return NextResponse.json({ data: trial, success: true }, { status: 200 });
   } catch (error) {
+    console.error("Error in GET /api/trials/[id]:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch trial";
     return NextResponse.json(
-      { error: "Failed to fetch trial" },
+      { error: errorMessage, success: false },
       { status: 500 }
     );
   }
@@ -77,23 +88,46 @@ export async function PUT(
     const supabase = await getSupabaseServerClient();
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized. Please sign in to update trials." },
         { status: 401 }
       );
     }
 
-    const payload = await request.json();
     const { id } = await context.params;
+    
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(
+        { error: "Invalid trial ID" },
+        { status: 400 }
+      );
+    }
+
+    let payload;
+    try {
+      payload = await request.json();
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: "Invalid request body. Please check your input." },
+        { status: 400 }
+      );
+    }
 
     const result = await upsertTrial(supabase, { ...payload, id }, user.id);
-    return NextResponse.json({ data: result.trial, warning: result.warning });
+    return NextResponse.json({ 
+      data: result.trial, 
+      warning: result.warning,
+      success: true 
+    }, { status: 200 });
   } catch (error) {
+    console.error("Error in PUT /api/trials/[id]:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to update trial";
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Validation or database error" },
+      { error: errorMessage, success: false },
       { status: 400 },
     );
   }
@@ -107,21 +141,35 @@ export async function DELETE(
     const supabase = await getSupabaseServerClient();
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized. Please sign in to delete trials." },
         { status: 401 }
       );
     }
 
     const { id } = await context.params;
+    
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(
+        { error: "Invalid trial ID" },
+        { status: 400 }
+      );
+    }
+
     await deleteTrial(supabase, id, user.id);
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Trial deleted successfully" 
+    }, { status: 200 });
   } catch (error) {
+    console.error("Error in DELETE /api/trials/[id]:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to delete trial";
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unexpected error" },
+      { error: errorMessage, success: false },
       { status: 500 },
     );
   }

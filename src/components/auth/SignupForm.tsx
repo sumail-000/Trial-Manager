@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
-import { PixelButton, PixelCard } from "@/components/ui";
+import { PixelButton, PixelCard, useToast } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const SignupForm = () => {
@@ -16,8 +16,16 @@ export const SignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, isAuthenticated } = useAuth();
   const router = useRouter();
+  const toast = useToast();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +33,26 @@ export const SignupForm = () => {
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      const errorMsg = "Passwords do not match";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     // Validate password length
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      const errorMsg = "Password must be at least 6 characters long";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      const errorMsg = "Please enter a valid email address";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -39,10 +60,13 @@ export const SignupForm = () => {
 
     try {
       await signUp(email, password, fullName);
+      toast.success("Account created successfully! Welcome aboard!");
       router.push("/dashboard");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Failed to create account. Please try again.");
+      const errorMessage = err.message || "Failed to create account. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Signup error:", err);
     } finally {
       setIsLoading(false);

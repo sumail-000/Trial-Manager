@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
-import { PixelButton, PixelCard } from "@/components/ui";
+import { PixelButton, PixelCard, useToast } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const LoginForm = () => {
@@ -13,8 +13,26 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const toast = useToast();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      router.push(redirectTo);
+    }
+  }, [isAuthenticated, router, searchParams]);
+
+  // Show message if redirected from protected route
+  useEffect(() => {
+    const message = searchParams.get("message");
+    if (message === "unauthenticated") {
+      toast.warning("Please sign in to continue");
+    }
+  }, [searchParams, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,10 +41,14 @@ export const LoginForm = () => {
 
     try {
       await signIn(email, password);
-      router.push("/dashboard");
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      toast.success("Welcome back! Signed in successfully");
+      router.push(redirectTo);
       router.refresh();
-    } catch (err) {
-      setError("Invalid email or password. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err?.message || "Invalid email or password. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Login error:", err);
     } finally {
       setIsLoading(false);
