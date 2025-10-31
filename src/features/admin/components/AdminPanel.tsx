@@ -141,7 +141,6 @@ export const AdminPanel = () => {
               <input
                 type="text"
                 required
-                placeholder="Netflix, Spotify, AWS..."
                 className="pixel-input w-full"
                 value={formState.serviceName}
                 onChange={(e) => handleChange("serviceName", e.target.value)}
@@ -155,7 +154,6 @@ export const AdminPanel = () => {
               <input
                 type="email"
                 required
-                placeholder="your.email@example.com"
                 className="pixel-input w-full"
                 value={formState.email}
                 onChange={(e) => handleChange("email", e.target.value)}
@@ -170,7 +168,6 @@ export const AdminPanel = () => {
                 type="text"
                 required
                 maxLength={4}
-                placeholder="4242"
                 className="pixel-input w-full"
                 value={formState.cardLast4}
                 onChange={(e) => handleChange("cardLast4", e.target.value)}
@@ -230,7 +227,6 @@ export const AdminPanel = () => {
                 type="number"
                 min="1"
                 max="30"
-                placeholder="3"
                 className="pixel-input w-full"
                 value={formState.notifyDaysBefore}
                 onChange={(e) => handleChange("notifyDaysBefore", e.target.value)}
@@ -244,7 +240,6 @@ export const AdminPanel = () => {
             </label>
             <textarea
               rows={3}
-              placeholder="Remember to download playlists first..."
               className="pixel-input w-full"
               value={formState.notes}
               onChange={(e) => handleChange("notes", e.target.value)}

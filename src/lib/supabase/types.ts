@@ -61,6 +61,7 @@ export type Database = {
           started_at: string
           status: string
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           alerts?: Json | null
@@ -78,6 +79,7 @@ export type Database = {
           started_at: string
           status?: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           alerts?: Json | null
@@ -95,6 +97,7 @@ export type Database = {
           started_at?: string
           status?: string
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

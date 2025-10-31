@@ -330,11 +330,11 @@ body {
   min-height: 2.75rem;
   padding: 0.75rem 1rem;
   border: 3px solid var(--pixel-outline-soft);
-  background: rgba(9, 12, 26, 0.9);
+  background: var(--color-surface-soft);
   color: var(--color-foreground-primary);
   font-size: 0.78rem;
   font-family: var(--font-geist-mono), monospace;
-  transition: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   image-rendering: pixelated;
 }
 
@@ -343,11 +343,58 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.35em;
   font-size: 0.58rem;
+  opacity: 0.7;
 }
 
+.pixel-input:hover {
+  border-color: var(--pixel-outline);
+  background: var(--color-surface);
+}
+
+.pixel-input:focus,
 .pixel-input:focus-visible {
   outline: none;
   border-color: var(--pixel-outline);
   box-shadow: inset 0 0 0 1px var(--pixel-outline);
+  background: var(--color-surface);
+}
+
+.pixel-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dark theme specific styles */
+[data-theme="dark"] .pixel-input {
+  background: rgba(18, 24, 49, 0.7);
+}
+
+[data-theme="dark"] .pixel-input:hover,
+[data-theme="dark"] .pixel-input:focus,
+[data-theme="dark"] .pixel-input:focus-visible {
+  background: rgba(18, 24, 49, 0.9);
+}
+
+/* Light theme specific styles */
+[data-theme="light"] .pixel-input {
+  background: rgba(248, 250, 255, 0.9);
+}
+
+[data-theme="light"] .pixel-input:hover,
+[data-theme="light"] .pixel-input:focus,
+[data-theme="light"] .pixel-input:focus-visible {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Select dropdown arrow for light theme */
+[data-theme="light"] .pixel-input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] select.pixel-input {
+  filter: invert(0);
+}
+
+/* Textarea specific */
+textarea.pixel-input {
+  resize: vertical;
+  min-height: 5rem;
 }
 

@@ -7,27 +7,43 @@ import { Eye, EyeOff } from "lucide-react";
 import { PixelButton, PixelCard } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 
-export const LoginForm = () => {
+export const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signUp } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await signIn(email, password);
+      await signUp(email, password, fullName);
       router.push("/dashboard");
       router.refresh();
-    } catch (err) {
-      setError("Invalid email or password. Please try again.");
-      console.error("Login error:", err);
+    } catch (err: any) {
+      setError(err.message || "Failed to create account. Please try again.");
+      console.error("Signup error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -42,13 +58,13 @@ export const LoginForm = () => {
             Trial Manager
           </h1>
           <p className="mt-2 font-mono text-sm uppercase tracking-widest text-foreground-soft">
-            Welcome Back
+            Create Your Account
           </p>
         </div>
 
         <PixelCard className="p-8">
           <h2 className="mb-6 font-mono text-2xl font-black uppercase tracking-tight text-foreground">
-            Sign In
+            Sign Up
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -57,6 +73,24 @@ export const LoginForm = () => {
                 <p className="font-mono text-xs text-accent-danger">{error}</p>
               </div>
             )}
+
+            <div>
+              <label
+                htmlFor="fullName"
+                className="mb-2 block font-mono text-[0.65rem] uppercase tracking-[0.3em] text-foreground-soft"
+              >
+                Full Name (Optional)
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                autoComplete="name"
+                className="pixel-input w-full"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
 
             <div>
               <label
@@ -89,7 +123,7 @@ export const LoginForm = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="pixel-input w-full pr-12"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -108,6 +142,42 @@ export const LoginForm = () => {
                   )}
                 </button>
               </div>
+              <p className="mt-1 font-mono text-[0.6rem] text-foreground-soft">
+                Minimum 6 characters
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block font-mono text-[0.65rem] uppercase tracking-[0.3em] text-foreground-soft"
+              >
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  autoComplete="new-password"
+                  className="pixel-input w-full pr-12"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-soft transition-colors hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <PixelButton
@@ -118,18 +188,18 @@ export const LoginForm = () => {
               disabled={isLoading}
               isLoading={isLoading}
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {isLoading ? "Creating Account..." : "Create Account"}
             </PixelButton>
           </form>
 
           <div className="mt-6 border-t-2 border-outline-soft pt-6 text-center">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-foreground-soft">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <Link
-                href="/signup"
+                href="/login"
                 className="text-accent-primary transition-colors hover:text-accent-secondary"
               >
-                Sign Up
+                Sign In
               </Link>
             </p>
           </div>

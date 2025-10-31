@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Trials", href: "/trials" },
   { label: "Admin", href: "/admin" },
+  { label: "Profile", href: "/profile" },
 ];
 
 export const PortalShell = ({ children }: PortalShellProps) => {

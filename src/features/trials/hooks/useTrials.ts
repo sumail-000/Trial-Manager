@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { differenceInHours } from "date-fns";
 
-import { fetchTrialById, fetchTrials } from "../api";
+import { getTrialsAction } from "@/app/(portal)/admin/actions";
+import { fetchTrialById } from "../api";
 import type { TrialRecord, TrialStatus } from "../types";
 
 export const TRIALS_QUERY_KEY = ["trials"] as const;
@@ -12,7 +13,7 @@ export const TRIALS_QUERY_KEY = ["trials"] as const;
 export const useTrials = () =>
   useQuery({
     queryKey: TRIALS_QUERY_KEY,
-    queryFn: fetchTrials,
+    queryFn: getTrialsAction,
     staleTime: 60 * 1000,
     select: (records) =>
       [...records].sort(

@@ -2,11 +2,11 @@ import "server-only";
 
 import { differenceInDays } from "date-fns";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
-import type { Json } from "@/lib/supabase/types";
+import type { Json, Database } from "@/lib/supabase/types";
 
-import { MOCK_TRIALS } from "../data/mockTrials";
 import type { TrialMutationInput, TrialRecord, TrialStatus } from "../types";
 
 // Supabase row type matching the new simplified schema
@@ -26,6 +26,7 @@ type SupabaseTrialRow = {
   alerts: Json | null;
   created_at: string | null;
   updated_at: string | null;
+  user_id: string | null;
 };
 
 // Validation schema for mutations
@@ -36,7 +37,13 @@ const mutationSchema = z.object({
   cardLast4: z.string().length(4, "Card last 4 digits must be exactly 4 characters"),
   startedAt: z.string().datetime(),
   expiresAt: z.string().datetime(),
-  cancelUrl: z.string().url().optional().nullable(),
+  cancelUrl: z
+    .string()
+    .url()
+    .optional()
+    .nullable()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? null : val)),
   notifyDaysBefore: z.number().min(1).max(30).default(3),
   category: z.string().min(1),
   cost: z.number().min(0),
@@ -81,36 +88,41 @@ const fromSupabaseRow = (row: SupabaseTrialRow): TrialRecord => ({
 });
 
 // Convert TrialMutationInput to Supabase row
-const toSupabaseRow = (input: TrialMutationInput): SupabaseTrialRow => ({
-  id: input.id ?? "",
-  service_name: input.serviceName,
-  email: input.email,
-  card_last4: input.cardLast4,
-  started_at: input.startedAt,
-  expires_at: input.expiresAt,
-  status: input.status ?? "active",
-  cancel_url: input.cancelUrl ?? null,
-  notify_days_before: input.notifyDaysBefore,
-  category: input.category,
-  cost: input.cost,
-  notes: input.notes ?? null,
-  alerts: [],
-  created_at: null,
-  updated_at: null,
-});
+const toSupabaseRow = (input: TrialMutationInput, userId: string): Partial<SupabaseTrialRow> => {
+  const row: Partial<SupabaseTrialRow> = {
+    service_name: input.serviceName,
+    email: input.email,
+    card_last4: input.cardLast4,
+    started_at: input.startedAt,
+    expires_at: input.expiresAt,
+    status: input.status ?? "active",
+    cancel_url: input.cancelUrl ?? null,
+    notify_days_before: input.notifyDaysBefore,
+    category: input.category,
+    cost: input.cost,
+    notes: input.notes ?? null,
+    user_id: userId,
+  };
 
-export const getTrials = async (): Promise<TrialRecord[]> => {
-  if (!hasSupabaseCredentials) {
-    return MOCK_TRIALS.map((trial) => ({
-      ...trial,
-      status: deriveStatus(trial),
-    }));
+  if (input.id) {
+    row.id = input.id;
   }
 
-  const supabase = getSupabaseServiceRoleClient();
-  const { data, error } = await supabase
+  return row;
+};
+
+export const getTrials = async (
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<TrialRecord[]> => {
+  if (!hasSupabaseCredentials) {
+    throw new Error("Supabase credentials are not configured");
+  }
+
+  const { data, error} = await supabase
     .from("trials")
     .select("*")
+    .eq("user_id", userId)
     .order("expires_at", { ascending: true });
 
   if (error) {
@@ -127,23 +139,20 @@ export const getTrials = async (): Promise<TrialRecord[]> => {
   });
 };
 
-export const getTrialById = async (id: string): Promise<TrialRecord | null> => {
+export const getTrialById = async (
+  supabase: SupabaseClient<Database>,
+  id: string,
+  userId: string
+): Promise<TrialRecord | null> => {
   if (!hasSupabaseCredentials) {
-    const mock = MOCK_TRIALS.find((t) => t.id === id);
-    if (!mock) {
-      return null;
-    }
-    return {
-      ...mock,
-      status: deriveStatus(mock),
-    };
+    throw new Error("Supabase credentials are not configured");
   }
 
-  const supabase = getSupabaseServiceRoleClient();
   const { data, error } = await supabase
     .from("trials")
     .select("*")
     .eq("id", id)
+    .eq("user_id", userId)
     .single();
 
   if (error) {
@@ -162,29 +171,18 @@ export const getTrialById = async (id: string): Promise<TrialRecord | null> => {
   };
 };
 
-export const upsertTrial = async (input: TrialMutationInput) => {
+export const upsertTrial = async (
+  supabase: SupabaseClient<Database>,
+  input: TrialMutationInput,
+  userId: string
+) => {
   const payload = mutationSchema.parse(input);
 
   if (!hasSupabaseCredentials) {
-    const mockTrial = {
-      ...payload,
-      id: payload.id ?? `mock-${Date.now()}`,
-      alerts: [],
-      status: "active" as TrialStatus,
-    } as TrialRecord;
-
-    return {
-      trial: {
-        ...mockTrial,
-        status: deriveStatus(mockTrial),
-      },
-      warning:
-        "Supabase credentials missing — trial mutation executed locally only.",
-    };
+    throw new Error("Supabase credentials are not configured");
   }
 
-  const supabase = getSupabaseServiceRoleClient();
-  const row = toSupabaseRow(payload);
+  const row = toSupabaseRow(payload, userId);
   const { data, error } = await supabase
     .from("trials")
     .upsert(row as never, {
@@ -212,14 +210,21 @@ export const upsertTrial = async (input: TrialMutationInput) => {
   };
 };
 
-export const deleteTrial = async (id: string): Promise<void> => {
+export const deleteTrial = async (
+  supabase: SupabaseClient<Database>,
+  id: string,
+  userId: string
+): Promise<void> => {
   if (!hasSupabaseCredentials) {
     console.warn("Supabase credentials missing — delete operation skipped.");
     return;
   }
 
-  const supabase = getSupabaseServiceRoleClient();
-  const { error } = await supabase.from("trials").delete().eq("id", id);
+  const { error } = await supabase
+    .from("trials")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
 
   if (error) {
     console.error(`Error deleting trial ${id}:`, error);

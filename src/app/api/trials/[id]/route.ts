@@ -1,38 +1,95 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 import {
   deleteTrial,
   getTrialById,
   upsertTrial,
 } from "@/features/trials/server/repository";
+import type { Database } from "@/lib/supabase/types";
+
+const getSupabaseServerClient = async () => {
+  const cookieStore = await cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Called from a Server Component. Can be ignored if you have middleware refreshing user sessions.
+          }
+        },
+      },
+    }
+  );
+};
 
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await context.params;
-  const trial = await getTrialById(id);
-  if (!trial) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await context.params;
+    const trial = await getTrialById(supabase, id, user.id);
+    
+    if (!trial) {
+      return NextResponse.json(
+        { error: "Trial not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({ data: trial });
+  } catch (error) {
     return NextResponse.json(
-      { error: "Trial not found" },
-      {
-        status: 404,
-      },
+      { error: "Failed to fetch trial" },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({ data: trial });
 }
 
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const payload = await request.json();
-  const { id } = await context.params;
-
   try {
-    const result = await upsertTrial({ ...payload, id });
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const payload = await request.json();
+    const { id } = await context.params;
+
+    const result = await upsertTrial(supabase, { ...payload, id }, user.id);
     return NextResponse.json({ data: result.trial, warning: result.warning });
   } catch (error) {
     return NextResponse.json(
@@ -46,9 +103,21 @@ export async function DELETE(
   _request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await context.params;
   try {
-    await deleteTrial(id);
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await context.params;
+    await deleteTrial(supabase, id, user.id);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(

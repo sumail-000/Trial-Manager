@@ -6,6 +6,7 @@ import { AlertCircle, CreditCard } from "lucide-react";
 
 import { PixelButton, PixelCard } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useCountdown } from "@/hooks/useCountdown";
 
 import { useTrialFilters } from "../hooks/useTrialFilters";
 import { useTrialOrdering, useTrialSummary, useTrials } from "../hooks/useTrials";
@@ -54,21 +55,30 @@ const TrialBadge = ({ trial }: { trial: TrialRecord }) => (
 );
 
 const TrialCard = ({ trial }: { trial: TrialRecord }) => {
-  const expiresIn = formatDistanceToNowStrict(new Date(trial.expiresAt), {
-    addSuffix: true,
-  });
+  // Real-time countdown hook
+  const countdown = useCountdown(trial.expiresAt);
 
-  const now = new Date();
-  const progressPercent = Math.max(
-    0,
-    Math.min(
-      100,
-      ((new Date(trial.expiresAt).getTime() - now.getTime()) /
-        (new Date(trial.expiresAt).getTime() -
-          new Date(trial.startedAt).getTime())) *
-        100,
-    ),
-  );
+  // Calculate real-time progress percentage
+  const progressPercent = useMemo(() => {
+    const totalDuration =
+      new Date(trial.expiresAt).getTime() - new Date(trial.startedAt).getTime();
+    const remaining = countdown.remainingMs;
+    return Math.max(0, Math.min(100, (remaining / totalDuration) * 100));
+  }, [countdown.remainingMs, trial.expiresAt, trial.startedAt]);
+
+  // Format the countdown display
+  const displayTime = useMemo(() => {
+    const { duration } = countdown;
+    const days = Math.floor(countdown.remainingMs / (1000 * 60 * 60 * 24));
+    
+    if (days > 0) {
+      return `${days}d ${duration.hours || 0}h`;
+    }
+    if ((duration.hours || 0) > 0) {
+      return `${duration.hours}h ${duration.minutes || 0}m`;
+    }
+    return `${duration.minutes || 0}m ${duration.seconds || 0}s`;
+  }, [countdown]);
 
   return (
     <PixelCard className="relative flex flex-col gap-5 p-6">
@@ -103,13 +113,13 @@ const TrialCard = ({ trial }: { trial: TrialRecord }) => {
 
       <div>
         <div className="flex items-center justify-between text-[0.55rem] uppercase tracking-[0.4em] text-foreground-soft">
-          <span>Expires</span>
-          <span className={STATUS_STYLES[trial.status]}>{expiresIn}</span>
+          <span>Time Remaining</span>
+          <span className={STATUS_STYLES[trial.status]}>{displayTime}</span>
         </div>
         <div className="mt-2 h-3 border-2 border-outline-soft bg-background-muted/80">
           <div
             className={cn(
-              "h-full",
+              "h-full transition-all duration-1000",
               trial.status === "expiring" && "bg-accent-warning",
               trial.status === "active" && "bg-accent-positive",
               trial.status === "expired" && "bg-accent-danger",
