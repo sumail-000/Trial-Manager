@@ -31,6 +31,7 @@ const config: Config = {
           primary: "var(--color-accent-primary)",
           secondary: "var(--color-accent-secondary)",
           positive: "var(--color-accent-positive)",
+          success: "var(--color-accent-positive)",
           warning: "var(--color-accent-warning)",
           danger: "var(--color-accent-danger)",
         },
