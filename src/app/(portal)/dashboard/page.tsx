@@ -1,6 +1,6 @@
-import { DashboardView } from "@/features/trials/components/DashboardView";
+import { DashboardOverview } from "@/features/trials/components/DashboardOverview";
 
 export default function DashboardPage() {
-  return <DashboardView />;
+  return <DashboardOverview />;
 }
 

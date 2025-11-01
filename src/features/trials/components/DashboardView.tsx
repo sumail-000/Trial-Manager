@@ -192,7 +192,22 @@ export const DashboardView = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="mx-auto w-full max-w-6xl space-y-8 px-6 py-12 sm:px-10">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-mono text-3xl font-black uppercase tracking-tight text-foreground">
+            All Trials
+          </h1>
+          <p className="mt-2 font-mono text-sm text-foreground-soft">
+            Manage all your trial subscriptions
+          </p>
+        </div>
+        <PixelButton href="/admin" size="sm">
+          Add Trial
+        </PixelButton>
+      </div>
+
       {/* Summary Section */}
       <div className="grid gap-6 md:grid-cols-3">
         <PixelCard className="p-6">
@@ -246,13 +261,10 @@ export const DashboardView = () => {
 
       {/* Trials Grid */}
       <div>
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6">
           <h2 className="font-mono text-2xl font-black uppercase tracking-tight text-foreground">
-            Your Trials ({filteredTrials.length})
+            All Trials ({filteredTrials.length})
           </h2>
-          <PixelButton size="sm" variant="secondary" href="/admin">
-            Add Trial
-          </PixelButton>
         </div>
 
         {isLoading ? (
