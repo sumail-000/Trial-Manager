@@ -1,0 +1,372 @@
+/* 90s Retro Animated Backgrounds for Trial Manager */
+
+/* ============================================
+   DARK THEME - Cyberpunk/Matrix Style
+   ============================================ */
+
+[data-theme="dark"] .retro-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+}
+
+/* Animated grid lines */
+[data-theme="dark"] .retro-bg-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(0deg, transparent 24%, rgba(59, 130, 246, 0.05) 25%, rgba(59, 130, 246, 0.05) 26%, transparent 27%, transparent 74%, rgba(59, 130, 246, 0.05) 75%, rgba(59, 130, 246, 0.05) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(59, 130, 246, 0.05) 25%, rgba(59, 130, 246, 0.05) 26%, transparent 27%, transparent 74%, rgba(59, 130, 246, 0.05) 75%, rgba(59, 130, 246, 0.05) 76%, transparent 77%, transparent);
+  background-size: 50px 50px;
+  animation: grid-scroll 20s linear infinite;
+}
+
+/* Scanlines effect */
+[data-theme="dark"] .retro-bg-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 3px
+  );
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+/* Floating pixels/particles */
+[data-theme="dark"] .retro-pixel {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  animation: float-pixel 15s ease-in-out infinite;
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(1) {
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+  animation-duration: 12s;
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(2) {
+  top: 30%;
+  left: 60%;
+  animation-delay: 2s;
+  animation-duration: 15s;
+  background: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(3) {
+  top: 60%;
+  left: 30%;
+  animation-delay: 4s;
+  animation-duration: 18s;
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(4) {
+  top: 80%;
+  left: 70%;
+  animation-delay: 6s;
+  animation-duration: 14s;
+  background: rgba(236, 72, 153, 0.6);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(5) {
+  top: 40%;
+  left: 80%;
+  animation-delay: 3s;
+  animation-duration: 16s;
+}
+
+[data-theme="dark"] .retro-pixel:nth-child(6) {
+  top: 70%;
+  left: 15%;
+  animation-delay: 5s;
+  animation-duration: 13s;
+  background: rgba(34, 211, 238, 0.6);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.8);
+}
+
+/* Glowing orbs */
+[data-theme="dark"] .retro-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.3;
+  animation: pulse-orb 8s ease-in-out infinite;
+}
+
+[data-theme="dark"] .retro-orb:nth-child(7) {
+  top: 20%;
+  left: 10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+  animation-delay: 0s;
+}
+
+[data-theme="dark"] .retro-orb:nth-child(8) {
+  bottom: 10%;
+  right: 15%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
+  animation-delay: 2s;
+}
+
+/* ============================================
+   LIGHT THEME - Vaporwave/Pastel Style
+   ============================================ */
+
+[data-theme="light"] .retro-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fef3f8 0%, #e0f2fe 50%, #faf5ff 100%);
+}
+
+/* Animated grid lines - pastel */
+[data-theme="light"] .retro-bg-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(0deg, transparent 24%, rgba(236, 72, 153, 0.08) 25%, rgba(236, 72, 153, 0.08) 26%, transparent 27%, transparent 74%, rgba(236, 72, 153, 0.08) 75%, rgba(236, 72, 153, 0.08) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(168, 85, 247, 0.08) 25%, rgba(168, 85, 247, 0.08) 26%, transparent 27%, transparent 74%, rgba(168, 85, 247, 0.08) 75%, rgba(168, 85, 247, 0.08) 76%, transparent 77%, transparent);
+  background-size: 60px 60px;
+  animation: grid-scroll 25s linear infinite;
+}
+
+/* Subtle scanlines */
+[data-theme="light"] .retro-bg-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.02) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.02) 3px
+  );
+  pointer-events: none;
+}
+
+/* Floating pixels - pastel colors */
+[data-theme="light"] .retro-pixel {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+  animation: float-pixel 15s ease-in-out infinite;
+}
+
+[data-theme="light"] .retro-pixel:nth-child(1) {
+  top: 15%;
+  left: 25%;
+  animation-delay: 0s;
+  animation-duration: 14s;
+  background: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+[data-theme="light"] .retro-pixel:nth-child(2) {
+  top: 35%;
+  left: 65%;
+  animation-delay: 2s;
+  animation-duration: 16s;
+  background: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+[data-theme="light"] .retro-pixel:nth-child(3) {
+  top: 55%;
+  left: 35%;
+  animation-delay: 4s;
+  animation-duration: 18s;
+  background: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+}
+
+[data-theme="light"] .retro-pixel:nth-child(4) {
+  top: 75%;
+  left: 75%;
+  animation-delay: 6s;
+  animation-duration: 15s;
+  background: rgba(34, 211, 238, 0.4);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+}
+
+[data-theme="light"] .retro-pixel:nth-child(5) {
+  top: 45%;
+  left: 85%;
+  animation-delay: 3s;
+  animation-duration: 17s;
+  background: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+[data-theme="light"] .retro-pixel:nth-child(6) {
+  top: 65%;
+  left: 20%;
+  animation-delay: 5s;
+  animation-duration: 14s;
+  background: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+}
+
+/* Glowing orbs - pastel */
+[data-theme="light"] .retro-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.2;
+  animation: pulse-orb 10s ease-in-out infinite;
+}
+
+[data-theme="light"] .retro-orb:nth-child(7) {
+  top: 15%;
+  left: 5%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
+  animation-delay: 0s;
+}
+
+[data-theme="light"] .retro-orb:nth-child(8) {
+  bottom: 15%;
+  right: 10%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+  animation-delay: 3s;
+}
+
+[data-theme="light"] .retro-orb:nth-child(9) {
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+  animation-delay: 5s;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes grid-scroll {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  100% {
+    transform: translateY(50px) translateX(50px);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes float-pixel {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.2);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-15px, -60px) scale(0.9);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate(30px, -40px) scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes pulse-orb {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   ADDITIONAL RETRO EFFECTS
+   ============================================ */
+
+/* CRT Monitor curve effect */
+.retro-bg-container {
+  animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.98; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* Noise texture overlay */
+.retro-noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  animation: noise-animate 0.2s steps(10) infinite;
+}
+
+@keyframes noise-animate {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 10%); }
+  80% { transform: translate(-15%, 0); }
+  90% { transform: translate(10%, 5%); }
+  100% { transform: translate(5%, 0); }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .retro-bg-container::before,
+  .retro-bg-container::after,
+  .retro-pixel,
+  .retro-orb,
+  .retro-noise {
+    animation: none !important;
+  }
+  
+  .retro-bg-container {
+    animation: none !important;
+  }
+}
+

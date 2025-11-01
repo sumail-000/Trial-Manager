@@ -31,9 +31,8 @@ export default function Home() {
   const serviceName = closestTrialData?.trial?.serviceName || "Netflix";
   const trialCost = closestTrialData?.trial?.cost || 19.99;
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Pixelated grid background */}
-      <div className="pointer-events-none absolute inset-0 pixel-grid opacity-20" />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Retro background is now global */}
       
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-20 px-6 pb-24 pt-16 sm:px-10">
         {/* Hero Section */}
@@ -191,7 +190,6 @@ export default function Home() {
           </PixelCard>
         </section>
       </main>
-      <div className="pointer-events-none absolute inset-0 bg-pixel-radial opacity-70" />
     </div>
   );
 }

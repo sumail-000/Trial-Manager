@@ -40,7 +40,7 @@ export const PortalShell = ({ children }: PortalShellProps) => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-background">
+    <div className="relative flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 border-b border-outline-soft/40 bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5 sm:px-10">
           <Link href="/dashboard" className="flex items-center gap-3">
@@ -105,8 +105,7 @@ export const PortalShell = ({ children }: PortalShellProps) => {
         </div>
       </header>
       <div className="relative flex flex-1 flex-col">
-        <div className="pointer-events-none absolute inset-0 bg-pixel-radial opacity-60" />
-        <div className="relative flex-1">{children}</div>
+        {children}
       </div>
     </div>
   );

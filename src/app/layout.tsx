@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { AppProviders } from "@/components/providers/AppProviders";
+import { RetroBackground } from "@/components/layout/RetroBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <RetroBackground />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

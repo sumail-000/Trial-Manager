@@ -90,10 +90,7 @@ const features = [
 
 export default function FeaturesPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Pixelated grid background */}
-      <div className="pointer-events-none absolute inset-0 pixel-grid opacity-20" />
-
+    <div className="relative min-h-screen overflow-hidden">
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 pb-24 pt-16 sm:px-10">
         {/* Header */}
         <div className="flex flex-col gap-6">
