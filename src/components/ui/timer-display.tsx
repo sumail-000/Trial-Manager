@@ -8,17 +8,21 @@ import { cn } from "@/lib/utils";
 
 const STATUS_TEXT: Record<TimerStatus, string> = {
   safe: "On Track",
+  active: "Active",
   warning: "Expiring Soon",
   danger: "Critical",
+  critical: "Critical",
 };
 
 const STATUS_ACCENTS: Record<TimerStatus, string> = {
   safe: "text-accent-positive",
+  active: "text-accent-primary",
   warning: "text-accent-warning",
   danger: "text-accent-danger",
+  critical: "text-accent-danger",
 };
 
-type TimerStatus = "safe" | "warning" | "danger";
+type TimerStatus = "safe" | "active" | "warning" | "danger" | "critical";
 
 interface TimerDisplayProps extends Omit<HTMLMotionProps<"div">, "initial" | "animate" | "transition" | "children"> {
   milliseconds: number;
@@ -90,8 +94,9 @@ export const TimerDisplay = ({
           className={cn(
             "absolute inset-y-0 left-0 rounded-full",
             status === "safe" && "bg-accent-positive",
+            status === "active" && "bg-accent-primary",
             status === "warning" && "bg-accent-warning",
-            status === "danger" && "bg-accent-danger",
+            (status === "danger" || status === "critical") && "bg-accent-danger",
             "shadow-pixel-glow",
           )}
           animate={{ width: `${normalizedProgress * 100}%` }}

@@ -103,9 +103,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      closest_expiring_trial: {
+        Row: {
+          alerts: Json | null
+          cancel_url: string | null
+          card_last4: string | null
+          category: string | null
+          cost: number | null
+          created_at: string | null
+          email: string | null
+          expires_at: string | null
+          id: string | null
+          notes: string | null
+          notify_days_before: number | null
+          seconds_until_expiry: number | null
+          service_name: string | null
+          started_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      batch_update_trial_statuses: { Args: never; Returns: undefined }
+      calculate_trial_status: {
+        Args: {
+          current_status_param: string
+          expires_at_param: string
+          notify_days_before_param: number
+        }
+        Returns: string
+      }
       verify_admin_password: {
         Args: { admin_email: string; admin_password: string }
         Returns: boolean

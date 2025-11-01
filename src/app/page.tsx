@@ -4,9 +4,13 @@ import { useMemo } from "react";
 import Spline from '@splinetool/react-spline';
 import { PixelButton, PixelCard, TimerDisplay } from "@/components/ui";
 import { useCountdown } from "@/hooks/useCountdown";
+import { useClosestTrial } from "@/hooks/useClosestTrial";
 
 export default function Home() {
-  // Calculate a demo trial that expires in ~7 days from now
+  // Fetch the closest expiring trial from the database
+  const { data: closestTrialData, isLoading: isLoadingTrial } = useClosestTrial();
+
+  // Calculate a demo trial that expires in ~7 days from now (fallback)
   const demoExpiryDate = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + 7);
@@ -15,7 +19,17 @@ export default function Home() {
     return date;
   }, []);
 
-  const countdown = useCountdown(demoExpiryDate);
+  // Use real trial data if available, otherwise use demo
+  const expiryDate = closestTrialData?.trial?.expiresAt 
+    ? new Date(closestTrialData.trial.expiresAt)
+    : demoExpiryDate;
+
+  const countdown = useCountdown(expiryDate);
+  
+  // Determine the service name and if it's a real trial
+  const isRealTrial = Boolean(closestTrialData?.trial);
+  const serviceName = closestTrialData?.trial?.serviceName || "Netflix";
+  const trialCost = closestTrialData?.trial?.cost || 19.99;
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       {/* Pixelated grid background */}
@@ -86,13 +100,25 @@ export default function Home() {
           className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]"
         >
           <div className="flex flex-col gap-6">
-            {/* Timer Display - Live Demo */}
-            <TimerDisplay
-              label="Next Renewal (Live Demo)"
-              milliseconds={countdown.remainingMs}
-              status="warning"
-              progress={0.72}
-            />
+            {/* Timer Display - Live Demo or Real Trial */}
+            <div className="space-y-2">
+              {isRealTrial && (
+                <div className="flex items-center gap-2 px-2">
+                  <span className="h-2 w-2 animate-pulse bg-accent-positive rounded-full" />
+                  <span className="font-mono text-[0.65rem] uppercase tracking-wider text-accent-positive">
+                    Live Trial: {serviceName}
+                  </span>
+                </div>
+              )}
+              <TimerDisplay
+                label={isRealTrial ? `${serviceName} - Next Charge $${trialCost.toFixed(2)}` : "Next Renewal (Live Demo)"}
+                milliseconds={countdown.remainingMs}
+                status={countdown.remainingMs < 86400000 ? "critical" : countdown.remainingMs < 259200000 ? "warning" : "active"}
+                progress={isRealTrial && closestTrialData?.trial ? 
+                  1 - (countdown.remainingMs / (new Date(closestTrialData.trial.expiresAt).getTime() - new Date(closestTrialData.trial.startedAt).getTime())) 
+                  : 0.72}
+              />
+            </div>
             
             {/* Feature Cards */}
             <div className="grid gap-6 md:grid-cols-2">
